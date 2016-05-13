@@ -1,0 +1,4 @@
+#
+#Fri May 13 10:19:26 CEST 2016
+com.intel.core.target.selection="thunder10"
+com.intel.core.project.type.id="com.intel.iotdevkit.java.iotJavaNature"

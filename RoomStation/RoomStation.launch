@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.intel.iotdevkit.java.remoteJavaIoTApplication">
+<booleanAttribute key="com.intel.iotdevkit.java.attachOutputToConsole" value="true"/>
+<booleanAttribute key="com.intel.iotdevkit.java.customRemoteDebugPort" value="false"/>
+<stringAttribute key="com.intel.iotdevkit.java.remoteDebugPort" value="8005"/>
+<stringAttribute key="com.intel.iotdevkit.launch.config.default" value="RoomStation"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.jdt.launching.ALLOW_TERMINATE" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edison.EdisonDevice"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="RoomStation"/>
+<booleanAttribute key="org.eclipse.jdt.launching.STOP_IN_MAIN" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_CONNECTOR_ID" value="org.eclipse.jdt.launching.socketAttachConnector"/>
+</launchConfiguration>
