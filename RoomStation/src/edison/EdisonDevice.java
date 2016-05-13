@@ -4,6 +4,11 @@ import upm_grove.*;
 import upm_gas.*;
 import org.eclipse.paho.client.mqttv3.*;
 
+/**
+ * 
+ * @author LSaetta
+ *
+ */
 public class EdisonDevice
 {
 	public static void main(String[] args)
