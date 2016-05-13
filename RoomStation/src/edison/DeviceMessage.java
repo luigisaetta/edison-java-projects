@@ -5,6 +5,17 @@ import com.google.gson.Gson;
 public class DeviceMessage
 {
 	private String id;
+	private String type;
+	public String getType()
+	{
+		return type;
+	}
+
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
 	private float temp;
 	private float light;
     private int airQuality;
@@ -49,9 +60,10 @@ public class DeviceMessage
 		this.light = light;
 	}
 
-	public DeviceMessage(String theId, float theTemp, float theLight, int theAirQuality)
+	public DeviceMessage(String theId, String theType, float theTemp, float theLight, int theAirQuality)
 	{
 		this.id = theId;
+	    this.type = theType;
 		this.temp = theTemp;
 		this.light = theLight;
 		this.airQuality = theAirQuality;
