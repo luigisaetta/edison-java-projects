@@ -16,7 +16,7 @@ public class EdisonDevice
 
 		GroveTemp tempSensor = new GroveTemp(config.PIN_TEMP);
 		GroveLight lightSensor = new GroveLight(config.PIN_LIGHT);
-        TP401      aqsSensor = new TP401(config.PIN_AQS);
+        TP401 aqsSensor = new TP401(config.PIN_AQS);
         
 		MqttClient mqttClient = null;
 
