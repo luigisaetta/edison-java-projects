@@ -4,8 +4,30 @@ import com.google.gson.Gson;
 
 public class DeviceMessage
 {
+	private String id;
 	private float temp;
 	private float light;
+    private int airQuality;
+    
+    public String getId()
+	{
+		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+	
+	public int getAirQuality()
+	{
+		return airQuality;
+	}
+
+	public void setAirQuality(int airQuality)
+	{
+		this.airQuality = airQuality;
+	}
 
 	public float getTemp()
 	{
@@ -27,10 +49,12 @@ public class DeviceMessage
 		this.light = light;
 	}
 
-	public DeviceMessage(float theTemp, float theLight)
+	public DeviceMessage(String theId, float theTemp, float theLight, int theAirQuality)
 	{
+		this.id = theId;
 		this.temp = theTemp;
 		this.light = theLight;
+		this.airQuality = theAirQuality;
 	}
 
 	public String toJSONString()

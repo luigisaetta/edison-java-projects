@@ -1,11 +1,11 @@
 package edison;
 
 import upm_grove.*;
+import upm_gas.*;
 import org.eclipse.paho.client.mqttv3.*;
 
 public class EdisonDevice
 {
-	
 	public static void main(String[] args)
 	{
 		// handle configuration
@@ -16,7 +16,8 @@ public class EdisonDevice
 
 		GroveTemp tempSensor = new GroveTemp(config.PIN_TEMP);
 		GroveLight lightSensor = new GroveLight(config.PIN_LIGHT);
-
+        TP401      aqsSensor = new TP401(config.PIN_AQS);
+        
 		MqttClient mqttClient = null;
 
 		try
@@ -47,18 +48,18 @@ public class EdisonDevice
 			// read value from sensors
 			float temp = tempSensor.value();
 			float light = lightSensor.raw_value();
-
+            int airQuality = aqsSensor.getSample();
 
 			System.out.println("Iteration n. " + i++);
 
-			String sMsg = "Temperature is : " + temp + ", Light is: " + light;
+			String sMsg = "Temperature is : " + temp + ", Light is: " + light + ", Air Quality is: " + airQuality ;
 			System.out.println(sMsg);
 
-			DeviceMessage msg = new DeviceMessage(temp, light);
+			DeviceMessage msg = new DeviceMessage(config.CLIENTID, temp, light, airQuality);
 
 			try
 			{
-				// send the message in JSON format {temp: 33, light: 101}
+				// send the message in JSON format {temp: 33, light: 101, airQuality: 55}
 				MqttMessage message = new MqttMessage(msg.toJSONString()
 						.getBytes());
 				message.setQos(config.QOS);
