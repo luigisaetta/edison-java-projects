@@ -13,27 +13,27 @@ import org.eclipse.paho.client.mqttv3.*;
  */
 public class DeviceMessage extends MqttMessage
 {
-	
+
 	private String id;
 	private String type;
-	
+
 	public DeviceMessage(Config config, float theTemp, float theLight, int theAirQuality)
 	{
 		super();
-		
+
 		// config data
 		this.setQos(config.QOS);
 		this.id = config.CLIENTID;
-	    this.type = config.TYPE;
-	    
-	    // sensor data
+		this.type = config.TYPE;
+
+		// sensor data
 		this.temp = theTemp;
 		this.light = theLight;
 		this.airQuality = theAirQuality;
-		
+
 		this.setPayload(this.toJSONString().getBytes());
 	}
-	
+
 	public String getType()
 	{
 		return type;
@@ -46,9 +46,9 @@ public class DeviceMessage extends MqttMessage
 
 	private float temp;
 	private float light;
-    private int airQuality;
-    
-    public String getId()
+	private int airQuality;
+
+	public String getId()
 	{
 		return id;
 	}
@@ -57,7 +57,7 @@ public class DeviceMessage extends MqttMessage
 	{
 		this.id = id;
 	}
-	
+
 	public int getAirQuality()
 	{
 		return airQuality;
@@ -87,8 +87,6 @@ public class DeviceMessage extends MqttMessage
 	{
 		this.light = light;
 	}
-
-	
 
 	public String toJSONString()
 	{
