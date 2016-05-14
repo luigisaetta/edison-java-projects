@@ -6,6 +6,8 @@ import java.util.Properties;
 
 public class Config
 {
+	private final static String propFileName = "config.properties";
+	
 	protected String CLIENTID = "thunder10";
 	protected String TYPE = "myType";
 	
@@ -29,8 +31,7 @@ public class Config
 	public void readConfig() 
 	{
 		Properties prop = new Properties();
-		String propFileName = "config.properties";
-
+		
 		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
 
 		if (inputStream != null)

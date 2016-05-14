@@ -2,10 +2,38 @@ package edison;
 
 import com.google.gson.Gson;
 
-public class DeviceMessage
+//import needed for MQQ communication
+import org.eclipse.paho.client.mqttv3.*;
+
+/**
+ * Extends MqttMessage
+ * 
+ * @author LSaetta
+ *
+ */
+public class DeviceMessage extends MqttMessage
 {
+	
 	private String id;
 	private String type;
+	
+	public DeviceMessage(Config config, float theTemp, float theLight, int theAirQuality)
+	{
+		super();
+		
+		// config data
+		this.setQos(config.QOS);
+		this.id = config.CLIENTID;
+	    this.type = config.TYPE;
+	    
+	    // sensor data
+		this.temp = theTemp;
+		this.light = theLight;
+		this.airQuality = theAirQuality;
+		
+		this.setPayload(this.toJSONString().getBytes());
+	}
+	
 	public String getType()
 	{
 		return type;
@@ -60,14 +88,7 @@ public class DeviceMessage
 		this.light = light;
 	}
 
-	public DeviceMessage(String theId, String theType, float theTemp, float theLight, int theAirQuality)
-	{
-		this.id = theId;
-	    this.type = theType;
-		this.temp = theTemp;
-		this.light = theLight;
-		this.airQuality = theAirQuality;
-	}
+	
 
 	public String toJSONString()
 	{
