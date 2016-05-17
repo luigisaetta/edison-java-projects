@@ -19,11 +19,15 @@ public class DeviceMessage extends MqttMessage
 	// are serialized in JSON message
 	@Expose private String id;
 	@Expose private String type;
+	
+	//
+	// READINGS FROM SENSORS
+	//
 	@Expose private String temp;
 	@Expose private String light;
-	@Expose private int airQuality;
+	@Expose private String airQuality;
 	
-	public DeviceMessage(Config config, String theTemp, String theLight, int theAirQuality)
+	public DeviceMessage(Config config, String theTemp, String theLight, String theAirQuality)
 	{
 		super();
 
@@ -60,12 +64,12 @@ public class DeviceMessage extends MqttMessage
 		this.id = id;
 	}
 
-	public int getAirQuality()
+	public String getAirQuality()
 	{
 		return airQuality;
 	}
 
-	public void setAirQuality(int airQuality)
+	public void setAirQuality(String airQuality)
 	{
 		this.airQuality = airQuality;
 	}

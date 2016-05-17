@@ -1,7 +1,8 @@
 package edison;
 
-import upm_grove.*;
-import upm_gas.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import upm_i2clcd.*;
 
 // import needed for MQQ communication
@@ -20,13 +21,31 @@ public class EdisonDevice
 
 	// client for sending MQTT messages to the broker
 	private MqttClient mqttClient = null;
-
 	private MqttConnectOptions connOpts = new MqttConnectOptions();
 
+	// Object representing sensors (UPM)
+	int nSensors;
+
+	ISensor tempSensor = null;
+	ISensor lightSensor = null;
+	ISensor aqsSensor = null;
+	
+	Jhd1313m1 lcd = null;
+
+	private List<ISensor> sensorList = new ArrayList<ISensor>();
+	
 	public EdisonDevice()
 	{
 		// read configuration from config.properties
 		config.readConfig();
+
+		config.printConfig();
+
+		// initialize Sensors Objects
+		initSensors();
+
+		// LCD
+		lcd = new Jhd1313m1(config.PIN_LCD, 0x3E, 0x62);
 
 		// set once or all connOptions
 		connOpts.setCleanSession(true);
@@ -41,20 +60,46 @@ public class EdisonDevice
 		}
 	}
 
+	/**
+	 * Initialize Sensors Definition
+	 * 
+	 */
+	private void initSensors()
+	{
+		for (int i = 0; i < config.nSensors; i++)
+		{
+			SensorDef sDef = config.lSensorsDef.get(i);
+
+			// Initialization of the UPM objects representing sensors
+			switch (sDef.getType())
+			{
+				case "TEMP":
+					tempSensor = new SensorTemp(sDef.getPin());
+					
+					sensorList.add(tempSensor);
+					
+					break;
+				case "LIGHT":
+					lightSensor = new SensorLight(sDef.getPin());
+					
+					sensorList.add(lightSensor);
+					
+					break;
+				case "GAS": // Air Quality sensor v 1.3
+					aqsSensor = new SensorGas(sDef.getPin());
+					
+					sensorList.add(aqsSensor);
+					
+					break;
+			}
+		}
+	}
+
 	public static void main(String[] args)
 	{
 		System.out.println("Starting program...");
 
 		EdisonDevice device = new EdisonDevice();
-
-		// declaration of the UPM objects representing sensors
-		GroveTemp tempSensor = new GroveTemp(device.config.PIN_TEMP);
-		GroveLight lightSensor = new GroveLight(device.config.PIN_LIGHT);
-		// Air Quality sensor v 1.3
-		TP401 aqsSensor = new TP401(device.config.PIN_AQS);
-
-		// LCD
-		Jhd1313m1 lcd = new Jhd1313m1(device.config.PIN_LCD, 0x3E, 0x62);
 
 		try
 		{
@@ -76,29 +121,29 @@ public class EdisonDevice
 		 */
 		while (true)
 		{
-			System.out.println("Iteration n. " + iter++);
+			printToConsole("Iteration n. " + iter++);
 
 			//
 			// READ value from sensors
 			//
-			float temp = tempSensor.value();
-			float light = lightSensor.raw_value();
-			int airQuality = aqsSensor.getSample();
+			String temperature = device.tempSensor.getValue();
+			String light = device.lightSensor.getValue();
+			String airQuality = device.aqsSensor.getValue();
 
 			// Strings to visualize
-			String r1 = "T:" + temp + ",L:" + light;
+			String r1 = "T:" + temperature + ",L:" + light;
 			String r2 = "A.Q.:" + airQuality;
 
 			// on console for debug
-			System.out.println(r1);
-			System.out.println(r2);
+			printToConsole(r1);
+			printToConsole(r2);
 
 			// write on the LCD
-			lcd.clear();
-			lcd.setCursor(0, 0);
-			lcd.write(r1);
-			lcd.setCursor(1, 0); // second row
-			lcd.write(r2);
+			device.lcd.clear();
+			device.lcd.setCursor(0, 0);
+			device.lcd.write(r1);
+			device.lcd.setCursor(1, 0); // second row
+			device.lcd.write(r2);
 
 			/*
 			 * Send the msg to the topic
@@ -108,13 +153,15 @@ public class EdisonDevice
 				// send the message in JSON format {id: thunder, temp: 33,
 				// light: 101, airQuality: 55}
 
-				// Build the object representing the msg to send
-				// it is a type of MqttMessage
-				DeviceMessage message = new DeviceMessage(device.config, temp, light, airQuality);
-
-				// publish msg to the topic
 				if (device.isConnected())
 				{
+					// Build the object representing the message to send
+					// it is a type of MqttMessage
+					// from configuration: id, type
+					DeviceMessage message = new DeviceMessage(device.config, temperature, light,
+							airQuality);
+
+					// publish message to the topic
 					device.publish(device.config.TOPIC, message);
 				} else
 				{
@@ -136,11 +183,19 @@ public class EdisonDevice
 		}
 	}
 
+	//
+	// Class method
+	//
+	private static void printToConsole(String r1)
+	{
+		System.out.println(r1);
+	}
+
 	private static void printMsgAndExit(MqttException e1)
 	{
 		e1.printStackTrace();
 
-		System.out.println("Exiting!");
+		printToConsole("Exiting!");
 		System.exit(-1);
 	}
 
@@ -155,8 +210,10 @@ public class EdisonDevice
 		System.out.println("Connected...");
 	}
 
-	/*
+	/**
 	 * Verify if the device is connected to the MQTT Broker
+	 * 
+	 * @return true if connected
 	 */
 	public boolean isConnected()
 	{
@@ -166,12 +223,25 @@ public class EdisonDevice
 			return false;
 	}
 
+	/**
+	 * publish the message to the MQTT broker
+	 * 
+	 * @param theTopic
+	 * @param theMsg
+	 * @throws MqttException
+	 */
 	public void publish(String theTopic, MqttMessage theMsg) throws MqttException
 	{
 		if (mqttClient != null)
 			mqttClient.publish(theTopic, theMsg);
 	}
 
+	/**
+	 * sleep for time msec
+	 * 
+	 * @param time
+	 *            (msec)
+	 */
 	public void sleep(long time)
 	{
 		try

@@ -2,6 +2,8 @@ package edison;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class Config
@@ -27,6 +29,10 @@ public class Config
 	protected int QOS = 1;
 	protected String TOPIC = CLIENTID + "/msg";
 
+	protected int nSensors;
+
+	protected List<SensorDef> lSensorsDef = new ArrayList<SensorDef>();
+
 	public void readConfig()
 	{
 		Properties prop = new Properties();
@@ -49,6 +55,7 @@ public class Config
 			System.exit(-1);
 		}
 
+		// Device Type
 		TYPE = prop.getProperty("TYPE");
 		BROKER = prop.getProperty("BROKER");
 		CLIENTID = prop.getProperty("CLIENTID");
@@ -56,5 +63,35 @@ public class Config
 
 		String sLeepTime = prop.getProperty("SLEEP_TIME");
 		SLEEP_TIME = Long.parseLong(sLeepTime);
+
+		// read number of sensors
+		nSensors = Integer.parseInt(prop.getProperty("NSENSORS"));
+
+		// read definition of sensors
+		for (int i = 1; i <= nSensors; i++)
+		{
+			String sName = prop.getProperty("sensor." + i + ".name");
+			System.out.println(sName);
+
+			String sType = prop.getProperty("sensor." + i + ".type");
+			System.out.println(sType);
+
+			int iPin = Integer.parseInt(prop.getProperty("sensor." + i + ".pin"));
+			System.out.println(iPin);
+
+			SensorDef sDef = new SensorDef(sName, sType, iPin);
+
+			lSensorsDef.add(sDef);
+		}
+	}
+
+	public void printConfig()
+	{
+		System.out.println("Configuration :");
+		System.out.println("CLIENTID: " + CLIENTID);
+		System.out.println("TYPE: " + TYPE);
+		System.out.println("BROKER: " + BROKER);
+		System.out.println("TOPIC: " + TOPIC);
+		System.out.println("SLEEP_TIME: " + SLEEP_TIME);
 	}
 }

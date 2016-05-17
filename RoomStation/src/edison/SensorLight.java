@@ -3,7 +3,7 @@ package edison;
 import upm_grove.*;
 
 /**
- * Class added to implement a unifor interface (ISensor) for Sensors
+ * Class added to implement a uniform interface (ISensor) for Sensors
  * @author LSaetta
  *
  */
@@ -16,10 +16,8 @@ public class SensorLight extends GroveLight implements ISensor
 	
 	@Override
 	public String getValue()
-	{
-		String ret = Float.toString(raw_value());
-		
-		return ret;
+	{	
+		return Float.toString(raw_value());
 	}
 
 	@Override
