@@ -1,8 +1,10 @@
 package edison;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 
-//import needed for MQQ communication
+//import needed for MQTT communication
 import org.eclipse.paho.client.mqttv3.*;
 
 /**
@@ -13,11 +15,15 @@ import org.eclipse.paho.client.mqttv3.*;
  */
 public class DeviceMessage extends MqttMessage
 {
-
-	private String id;
-	private String type;
-
-	public DeviceMessage(Config config, float theTemp, float theLight, int theAirQuality)
+    // the annotation @Expose to avoid that field of the superclass (MqttMessage) 
+	// are serialized in JSON message
+	@Expose private String id;
+	@Expose private String type;
+	@Expose private String temp;
+	@Expose private String light;
+	@Expose private int airQuality;
+	
+	public DeviceMessage(Config config, String theTemp, String theLight, int theAirQuality)
 	{
 		super();
 
@@ -31,7 +37,7 @@ public class DeviceMessage extends MqttMessage
 		this.light = theLight;
 		this.airQuality = theAirQuality;
 
-		this.setPayload(this.toJSONString().getBytes());
+		setPayload(this.toJSONString().getBytes());
 	}
 
 	public String getType()
@@ -43,10 +49,6 @@ public class DeviceMessage extends MqttMessage
 	{
 		this.type = type;
 	}
-
-	private float temp;
-	private float light;
-	private int airQuality;
 
 	public String getId()
 	{
@@ -68,30 +70,30 @@ public class DeviceMessage extends MqttMessage
 		this.airQuality = airQuality;
 	}
 
-	public float getTemp()
+	public String getTemp()
 	{
 		return temp;
 	}
 
-	public void setTemp(float temp)
+	public void setTemp(String temp)
 	{
 		this.temp = temp;
 	}
 
-	public float getLight()
+	public String getLight()
 	{
 		return light;
 	}
 
-	public void setLight(float light)
+	public void setLight(String light)
 	{
 		this.light = light;
 	}
 
 	public String toJSONString()
 	{
-		Gson gson = new Gson();
-
+		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+		
 		return gson.toJson(this);
 	}
 }
