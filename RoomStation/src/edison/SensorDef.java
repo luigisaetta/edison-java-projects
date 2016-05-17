@@ -1,6 +1,11 @@
 package edison;
 
-public class SensorDef implements ISensor
+/**
+ * Used in config.propertis
+ * @author LSaetta
+ *
+ */
+public class SensorDef
 {
 	// use this constant to initialize the type
 	public static final int TEMP = 1;
@@ -9,7 +14,7 @@ public class SensorDef implements ISensor
 	
 	private String label;
 	private String type;
-	private String value;
+	
 	private boolean analogic;
 	private int pin;
 	
@@ -55,13 +60,5 @@ public class SensorDef implements ISensor
 	public void setType(String type)
 	{
 		this.type = type;
-	}
-	public String getValue()
-	{
-		return value;
-	}
-	public void setValue(String value)
-	{
-		this.value = value;
 	}
 }

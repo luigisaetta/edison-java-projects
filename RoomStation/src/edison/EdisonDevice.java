@@ -32,6 +32,7 @@ public class EdisonDevice
 	
 	Jhd1313m1 lcd = null;
 
+	// the list of sensors connected, with a uniform interface (ISensor)
 	private List<ISensor> sensorList = new ArrayList<ISensor>();
 	
 	public EdisonDevice()
@@ -130,6 +131,16 @@ public class EdisonDevice
 			String light = device.lightSensor.getValue();
 			String airQuality = device.aqsSensor.getValue();
 
+			for (int i = 0; i < device.nSensors; i++)
+			{
+				ISensor is =   device.sensorList.get(i);
+				
+				String label = is.getLabel();
+				String val = is.getValue();
+				
+				// TODO costruisci stringhe per visual and msg
+			}
+			
 			// Strings to visualize
 			String r1 = "T:" + temperature + ",L:" + light;
 			String r2 = "A.Q.:" + airQuality;

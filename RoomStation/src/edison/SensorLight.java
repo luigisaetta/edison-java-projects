@@ -9,6 +9,8 @@ import upm_grove.*;
  */
 public class SensorLight extends GroveLight implements ISensor
 {
+	private final static String NAME = "Grove.Light";
+	
 	public SensorLight(int pin)
 	{
 		super(pin);
@@ -23,13 +25,20 @@ public class SensorLight extends GroveLight implements ISensor
 	@Override
 	public String getType()
 	{
-		return "Grove.Light";
+		return NAME;
 	}
 
 	@Override
 	public String getLabel()
 	{
 		return "L:";
+	}
+
+	@Override
+	public Measure getMeasure()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
