@@ -67,26 +67,28 @@ public class EdisonDevice
 	 */
 	private void initSensors()
 	{
-		for (int i = 0; i < config.nSensors; i++)
+		nSensors = config.nSensors;
+		
+		for (int i = 0; i < nSensors; i++)
 		{
 			SensorDef sDef = config.lSensorsDef.get(i);
 
 			// Initialization of the UPM objects representing sensors
 			switch (sDef.getType())
 			{
-				case "TEMP":
+				case "Grove.Temp":
 					tempSensor = new SensorTemp(sDef.getPin());
 					
 					sensorList.add(tempSensor);
 					
 					break;
-				case "LIGHT":
+				case "Grove.Light":
 					lightSensor = new SensorLight(sDef.getPin());
 					
 					sensorList.add(lightSensor);
 					
 					break;
-				case "GAS": // Air Quality sensor v 1.3
+				case "Grove.TP401": // Air Quality sensor v 1.3
 					aqsSensor = new SensorGas(sDef.getPin());
 					
 					sensorList.add(aqsSensor);
@@ -101,7 +103,9 @@ public class EdisonDevice
 		System.out.println("Starting program...");
 
 		EdisonDevice device = new EdisonDevice();
-
+        
+		List<Measure> measureList = new ArrayList<Measure>();
+		
 		try
 		{
 			System.out.println("Connecting to broker... ");
@@ -131,6 +135,9 @@ public class EdisonDevice
 			String light = device.lightSensor.getValue();
 			String airQuality = device.aqsSensor.getValue();
 
+			// clean list of measure, for new reading
+			measureList.clear();
+			
 			for (int i = 0; i < device.nSensors; i++)
 			{
 				ISensor is =   device.sensorList.get(i);
@@ -138,7 +145,10 @@ public class EdisonDevice
 				String label = is.getLabel();
 				String val = is.getValue();
 				
-				// TODO costruisci stringhe per visual and msg
+				// costruisci stringhe per visual and msg
+				Measure mes = new Measure(is.getType(), is.getUnit(), is.getValue());
+				
+				measureList.add(mes);
 			}
 			
 			// Strings to visualize
@@ -146,8 +156,7 @@ public class EdisonDevice
 			String r2 = "A.Q.:" + airQuality;
 
 			// on console for debug
-			printToConsole(r1);
-			printToConsole(r2);
+			printToConsole(measureList);
 
 			// write on the LCD
 			device.lcd.clear();
@@ -169,9 +178,11 @@ public class EdisonDevice
 					// Build the object representing the message to send
 					// it is a type of MqttMessage
 					// from configuration: id, type
-					DeviceMessage message = new DeviceMessage(device.config, temperature, light,
-							airQuality);
+					/* DeviceMessage message = new DeviceMessage(device.config, temperature, light,
+							airQuality); */
 
+					DeviceMessage message = new DeviceMessage(device.config, measureList);
+					
 					// publish message to the topic
 					device.publish(device.config.TOPIC, message);
 				} else
@@ -202,6 +213,16 @@ public class EdisonDevice
 		System.out.println(r1);
 	}
 
+	private static void printToConsole(List<Measure> measureList)
+	{
+		for (int i = 0; i < measureList.size(); i++)
+		{
+			Measure mes = (Measure)measureList.get(i);
+			
+			System.out.println(mes.getType() + "" + mes.getValue());
+		}
+	}
+	
 	private static void printMsgAndExit(MqttException e1)
 	{
 		e1.printStackTrace();

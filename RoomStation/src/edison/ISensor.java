@@ -10,4 +10,6 @@ public interface ISensor
 	
 	// to be used in display
 	public String getLabel();
+	
+	public String getUnit();
 }

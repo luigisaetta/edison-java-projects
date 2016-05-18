@@ -41,4 +41,11 @@ public class SensorLight extends GroveLight implements ISensor
 		return null;
 	}
 
+	@Override
+	public String getUnit()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

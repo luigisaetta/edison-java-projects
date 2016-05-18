@@ -35,4 +35,11 @@ public class SensorGas extends TP401 implements ISensor
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String getUnit()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

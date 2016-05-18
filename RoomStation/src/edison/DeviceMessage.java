@@ -1,8 +1,13 @@
 package edison;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+
+
 
 //import needed for MQTT communication
 import org.eclipse.paho.client.mqttv3.*;
@@ -27,6 +32,8 @@ public class DeviceMessage extends MqttMessage
 	@Expose private String light;
 	@Expose private String airQuality;
 	
+	@Expose private List<Measure> measureList = new ArrayList<Measure>();
+	
 	public DeviceMessage(Config config, String theTemp, String theLight, String theAirQuality)
 	{
 		super();
@@ -44,6 +51,17 @@ public class DeviceMessage extends MqttMessage
 		setPayload(this.toJSONString().getBytes());
 	}
 
+	public DeviceMessage(Config config, List<Measure> theList)
+	{
+		super();
+		
+		this.setQos(config.QOS);
+		this.id = config.CLIENTID;
+		this.type = config.TYPE;
+		
+		measureList.addAll(theList);
+	}
+	
 	public String getType()
 	{
 		return type;

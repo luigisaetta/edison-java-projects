@@ -45,4 +45,10 @@ public class SensorTemp extends GroveTemp implements ISensor
 		return mes;
 	}
 
+	@Override
+	public String getUnit()
+	{
+		return "C";
+	}
+
 }
