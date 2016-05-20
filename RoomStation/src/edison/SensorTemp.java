@@ -40,7 +40,7 @@ public class SensorTemp extends GroveTemp implements ISensor
 	@Override
 	public Measure getMeasure()
 	{
-		Measure mes = new Measure("GAS", "UNIT", getValue());
+		Measure mes = new Measure(NAME, getUnit(), getValue());
 		
 		return mes;
 	}

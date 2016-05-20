@@ -23,17 +23,12 @@ public class EdisonDevice
 	private MqttClient mqttClient = null;
 	private MqttConnectOptions connOpts = new MqttConnectOptions();
 
-	// Object representing sensors (UPM)
-	int nSensors;
-
-	ISensor tempSensor = null;
-	ISensor lightSensor = null;
-	ISensor aqsSensor = null;
-	
 	Jhd1313m1 lcd = null;
 
 	// the list of sensors connected, with a uniform interface (ISensor)
 	private List<ISensor> sensorList = new ArrayList<ISensor>();
+	
+	private List<Measure> measureList = new ArrayList<Measure>();
 	
 	public EdisonDevice()
 	{
@@ -46,9 +41,9 @@ public class EdisonDevice
 		initSensors();
 
 		// LCD
-		lcd = new Jhd1313m1(config.PIN_LCD, 0x3E, 0x62);
+		//lcd = new Jhd1313m1(config.PIN_LCD, 0x3E, 0x62);
 
-		// set once or all connOptions
+		// set once for all connOptions
 		connOpts.setCleanSession(true);
 
 		// Initialize MQTT client
@@ -61,51 +56,12 @@ public class EdisonDevice
 		}
 	}
 
-	/**
-	 * Initialize Sensors Definition
-	 * 
-	 */
-	private void initSensors()
-	{
-		nSensors = config.nSensors;
-		
-		for (int i = 0; i < nSensors; i++)
-		{
-			SensorDef sDef = config.lSensorsDef.get(i);
-
-			// Initialization of the UPM objects representing sensors
-			switch (sDef.getType())
-			{
-				case "Grove.Temp":
-					tempSensor = new SensorTemp(sDef.getPin());
-					
-					sensorList.add(tempSensor);
-					
-					break;
-				case "Grove.Light":
-					lightSensor = new SensorLight(sDef.getPin());
-					
-					sensorList.add(lightSensor);
-					
-					break;
-				case "Grove.TP401": // Air Quality sensor v 1.3
-					aqsSensor = new SensorGas(sDef.getPin());
-					
-					sensorList.add(aqsSensor);
-					
-					break;
-			}
-		}
-	}
-
 	public static void main(String[] args)
 	{
 		System.out.println("Starting program...");
 
 		EdisonDevice device = new EdisonDevice();
         
-		List<Measure> measureList = new ArrayList<Measure>();
-		
 		try
 		{
 			System.out.println("Connecting to broker... ");
@@ -122,66 +78,58 @@ public class EdisonDevice
 		long iter = 0;
 
 		/**
-		 * Read, send msg loop
+		 * Read, Send message loop
 		 */
 		while (true)
 		{
-			printToConsole("Iteration n. " + iter++);
+			printToConsole("");
+			printToConsole("Iteration n. " + ++iter);
 
 			//
 			// READ value from sensors
 			//
-			String temperature = device.tempSensor.getValue();
-			String light = device.lightSensor.getValue();
-			String airQuality = device.aqsSensor.getValue();
 
-			// clean list of measure, for new reading
-			measureList.clear();
+			// clean list of measure, for new readings
+			device.measureList.clear();
 			
-			for (int i = 0; i < device.nSensors; i++)
+			for (int i = 0; i < device.config.nSensors; i++)
 			{
 				ISensor is =   device.sensorList.get(i);
 				
-				String label = is.getLabel();
-				String val = is.getValue();
-				
-				// costruisci stringhe per visual and msg
+				// read from sensor and create measure object
 				Measure mes = new Measure(is.getType(), is.getUnit(), is.getValue());
 				
-				measureList.add(mes);
+				device.measureList.add(mes);
 			}
 			
 			// Strings to visualize
-			String r1 = "T:" + temperature + ",L:" + light;
-			String r2 = "A.Q.:" + airQuality;
+			//String r1 = "T:" + temperature + ",L:" + light;
+			//String r2 = "A.Q.:" + airQuality;
 
 			// on console for debug
-			printToConsole(measureList);
+			printToConsole(device.measureList);
 
 			// write on the LCD
-			device.lcd.clear();
-			device.lcd.setCursor(0, 0);
-			device.lcd.write(r1);
-			device.lcd.setCursor(1, 0); // second row
-			device.lcd.write(r2);
+			//device.lcd.clear();
+			//device.lcd.setCursor(0, 0);
+			//device.lcd.write(r1);
+			//device.lcd.setCursor(1, 0); // second row
+			//device.lcd.write(r2);
 
 			/*
 			 * Send the msg to the topic
 			 */
 			try
 			{
-				// send the message in JSON format {id: thunder, temp: 33,
-				// light: 101, airQuality: 55}
+				// send the message in JSON format
 
 				if (device.isConnected())
 				{
 					// Build the object representing the message to send
 					// it is a type of MqttMessage
 					// from configuration: id, type
-					/* DeviceMessage message = new DeviceMessage(device.config, temperature, light,
-							airQuality); */
 
-					DeviceMessage message = new DeviceMessage(device.config, measureList);
+					DeviceMessage message = new DeviceMessage(device.config, device.measureList);
 					
 					// publish message to the topic
 					device.publish(device.config.TOPIC, message);
@@ -208,6 +156,42 @@ public class EdisonDevice
 	//
 	// Class method
 	//
+	/**
+	 * Initialize Sensors Definition
+	 * 
+	 */
+	private void initSensors()
+	{	
+		for (int i = 0; i < config.nSensors; i++)
+		{
+			SensorDef sDef = config.lSensorsDef.get(i);
+			
+			ISensor iSens = null;
+			
+			// Initialization of the UPM objects representing sensors
+			switch (sDef.getType())
+			{
+				case "Grove.Temp":
+					printToConsole("Adding Sensor Temp");
+					iSens  = new SensorTemp(sDef.getPin());
+					
+					break;
+				case "Grove.Light":
+					printToConsole("Adding Sensor Light");
+					iSens  = new SensorLight(sDef.getPin());
+					
+					break;
+				case "Grove.TP401": // Air Quality sensor v 1.3
+					printToConsole("Adding Sensor TP401");
+					iSens = new SensorGas(sDef.getPin());
+					
+					break;
+			}
+			// add to list of sensors
+			sensorList.add(iSens);
+		}
+	}
+	
 	private static void printToConsole(String r1)
 	{
 		System.out.println(r1);
@@ -219,7 +203,7 @@ public class EdisonDevice
 		{
 			Measure mes = (Measure)measureList.get(i);
 			
-			System.out.println(mes.getType() + "" + mes.getValue());
+			System.out.println(mes.getType() + ": " + mes.getValue());
 		}
 	}
 	

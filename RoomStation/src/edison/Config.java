@@ -16,19 +16,13 @@ public class Config
 	// timing
 	protected long SLEEP_TIME = 5000;
 
-	// Sensors
-	protected int PIN_TEMP = 0;
-	protected int PIN_LIGHT = 1;
-	// air quality sensor (AQS)
-	protected int PIN_AQS = 2;
-	// I2C for LCD (0)
-	protected int PIN_LCD = 0;
 
 	// MQTT: normally read from config.properties
 	protected String BROKER = "tcp://iotgateway1:1883";
 	protected int QOS = 1;
 	protected String TOPIC = CLIENTID + "/msg";
 
+	// Sensors
 	protected int nSensors;
 
 	protected List<SensorDef> lSensorsDef = new ArrayList<SensorDef>();
@@ -69,17 +63,14 @@ public class Config
 
 		// read definition of sensors
 		for (int i = 1; i <= nSensors; i++)
-		{
-			String sName = prop.getProperty("sensor." + i + ".name");
-			System.out.println(sName);
-
+		{	
 			String sType = prop.getProperty("sensor." + i + ".type");
-			System.out.println(sType);
 
+			String sLabel = prop.getProperty("sensor." + i + ".label");
+			
 			int iPin = Integer.parseInt(prop.getProperty("sensor." + i + ".pin"));
-			System.out.println(iPin);
 
-			SensorDef sDef = new SensorDef(sName, sType, iPin);
+			SensorDef sDef = new SensorDef(sType, sLabel, iPin);
 
 			lSensorsDef.add(sDef);
 		}
@@ -87,11 +78,19 @@ public class Config
 
 	public void printConfig()
 	{
-		System.out.println("Configuration :");
+		System.out.println("");
+		System.out.println("Configuration Read from config.properties:");
 		System.out.println("CLIENTID: " + CLIENTID);
 		System.out.println("TYPE: " + TYPE);
 		System.out.println("BROKER: " + BROKER);
 		System.out.println("TOPIC: " + TOPIC);
 		System.out.println("SLEEP_TIME: " + SLEEP_TIME);
+		System.out.println("NSENSORS: " + nSensors);
+		
+		for (int i = 0; i < nSensors; i++)
+		{
+			System.out.println(lSensorsDef.get(i).getType());
+		}
+		
 	}
 }

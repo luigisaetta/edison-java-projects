@@ -1,10 +1,17 @@
 package edison;
 
+import com.google.gson.annotations.Expose;
+
+/**
+ * This class represent a single reading from a sensor
+ * @author LSaetta
+ *
+ */
 public class Measure
 {
-	String type;
-	String value;
-	String unit;
+	@Expose String type;
+	@Expose String unit;
+	@Expose String value;
 	
 	public Measure(String theType, String theUnit, String theValue)
 	{

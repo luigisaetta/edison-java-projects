@@ -32,14 +32,15 @@ public class SensorGas extends TP401 implements ISensor
 	@Override
 	public Measure getMeasure()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Measure mes = new Measure(NAME, getUnit(), getValue());
+		
+		return mes;
 	}
 
 	@Override
 	public String getUnit()
 	{
 		// TODO Auto-generated method stub
-		return null;
+		return "PPM";
 	}
 }

@@ -1,13 +1,12 @@
 package edison;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-
-
 
 //import needed for MQTT communication
 import org.eclipse.paho.client.mqttv3.*;
@@ -22,35 +21,16 @@ public class DeviceMessage extends MqttMessage
 {
     // the annotation @Expose to avoid that field of the superclass (MqttMessage) 
 	// are serialized in JSON message
+	// @Expose marks the only field serialized in JSON message
 	@Expose private String id;
 	@Expose private String type;
+	@Expose private Date date;
 	
 	//
 	// READINGS FROM SENSORS
 	//
-	@Expose private String temp;
-	@Expose private String light;
-	@Expose private String airQuality;
+	@Expose private List<Measure> readings = new ArrayList<Measure>();
 	
-	@Expose private List<Measure> measureList = new ArrayList<Measure>();
-	
-	public DeviceMessage(Config config, String theTemp, String theLight, String theAirQuality)
-	{
-		super();
-
-		// config data
-		this.setQos(config.QOS);
-		this.id = config.CLIENTID;
-		this.type = config.TYPE;
-
-		// sensor data
-		this.temp = theTemp;
-		this.light = theLight;
-		this.airQuality = theAirQuality;
-
-		setPayload(this.toJSONString().getBytes());
-	}
-
 	public DeviceMessage(Config config, List<Measure> theList)
 	{
 		super();
@@ -58,8 +38,11 @@ public class DeviceMessage extends MqttMessage
 		this.setQos(config.QOS);
 		this.id = config.CLIENTID;
 		this.type = config.TYPE;
+		this.date = new Date();
 		
-		measureList.addAll(theList);
+		readings.addAll(theList);
+		
+		setPayload(this.toJSONString().getBytes());
 	}
 	
 	public String getType()
@@ -80,36 +63,6 @@ public class DeviceMessage extends MqttMessage
 	public void setId(String id)
 	{
 		this.id = id;
-	}
-
-	public String getAirQuality()
-	{
-		return airQuality;
-	}
-
-	public void setAirQuality(String airQuality)
-	{
-		this.airQuality = airQuality;
-	}
-
-	public String getTemp()
-	{
-		return temp;
-	}
-
-	public void setTemp(String temp)
-	{
-		this.temp = temp;
-	}
-
-	public String getLight()
-	{
-		return light;
-	}
-
-	public void setLight(String light)
-	{
-		this.light = light;
 	}
 
 	public String toJSONString()
