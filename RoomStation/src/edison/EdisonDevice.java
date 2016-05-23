@@ -12,9 +12,9 @@ import org.eclipse.paho.client.mqttv3.*;
  * 
  * @author LSaetta
  *
- *         14/05/2016: introduced ability to reconnect to MQTT broker
+ * 14/05/2016: introduced ability to reconnect to MQTT broker
  */
-public class EdisonDevice
+public class EdisonDevice implements MqttCallback
 {
 	// handle configuration
 	Config config = new Config();
@@ -25,9 +25,12 @@ public class EdisonDevice
 
 	Jhd1313m1 lcd = null;
 
+	upm_grove.GroveLed led = new upm_grove.GroveLed(13);
+	
 	// the list of sensors connected, with a uniform interface (ISensor)
 	private List<ISensor> sensorList = new ArrayList<ISensor>();
 	
+	// to store the list of values at each reading
 	private List<Measure> measureList = new ArrayList<Measure>();
 	
 	public EdisonDevice()
@@ -35,6 +38,7 @@ public class EdisonDevice
 		// read configuration from config.properties
 		config.readConfig();
 
+		//print Configuration, for debug
 		config.printConfig();
 
 		// initialize Sensors Objects
@@ -221,9 +225,17 @@ public class EdisonDevice
 	public void connect() throws MqttException
 	{
 		if (mqttClient != null)
+		{
+			mqttClient.setCallback(this);
+			
 			mqttClient.connect(connOpts);
-
-		System.out.println("Connected...");
+			
+			System.out.println("Connected...");
+			
+			// Subscribe to the input Topic
+			//QoS = 0
+			mqttClient.subscribe(config.IN_TOPIC, 0);
+		}
 	}
 
 	/**
@@ -267,5 +279,36 @@ public class EdisonDevice
 		{
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Methods for MQTT Callbacks
+	 */
+	@Override
+	public void connectionLost(Throwable arg0)
+	{
+		System.out.println("Connection Lost...");
+	}
+
+	@Override
+	public void deliveryComplete(IMqttDeliveryToken token)
+	{
+		
+	}
+
+	@Override
+	public void messageArrived(String inputTopic, MqttMessage message) throws Exception
+	{
+		String sMessage = new String(message.getPayload());
+		
+		System.out.println("-------------------------------------------------");
+		System.out.println("Topic:" + inputTopic);
+		System.out.println("Message: " + sMessage);
+		System.out.println("-------------------------------------------------");
+		
+		if (sMessage.indexOf("ON") > 0)
+		  led.on();
+		if (sMessage.indexOf("OFF") > 0)
+			  led.off();
 	}
 }

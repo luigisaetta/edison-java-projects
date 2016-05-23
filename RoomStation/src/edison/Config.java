@@ -10,6 +10,9 @@ public class Config
 {
 	private final static String propFileName = "config.properties";
 
+	//
+	// some defaults
+	//
 	protected String CLIENTID = "thunder10";
 	protected String TYPE = "myType";
 
@@ -20,7 +23,11 @@ public class Config
 	// MQTT: normally read from config.properties
 	protected String BROKER = "tcp://iotgateway1:1883";
 	protected int QOS = 1;
+	
+	// This is the topic we're sending messages
 	protected String TOPIC = CLIENTID + "/msg";
+	
+	protected String IN_TOPIC = "device/thunder10/in";
 
 	// Sensors
 	protected int nSensors;
@@ -54,7 +61,8 @@ public class Config
 		BROKER = prop.getProperty("BROKER");
 		CLIENTID = prop.getProperty("CLIENTID");
 		TOPIC = prop.getProperty("TOPIC");
-
+        IN_TOPIC = prop.getProperty("IN_TOPIC");
+		
 		String sLeepTime = prop.getProperty("SLEEP_TIME");
 		SLEEP_TIME = Long.parseLong(sLeepTime);
 
@@ -84,6 +92,8 @@ public class Config
 		System.out.println("TYPE: " + TYPE);
 		System.out.println("BROKER: " + BROKER);
 		System.out.println("TOPIC: " + TOPIC);
+		System.out.println("IN_TOPIC: " + IN_TOPIC);
+		
 		System.out.println("SLEEP_TIME: " + SLEEP_TIME);
 		System.out.println("NSENSORS: " + nSensors);
 		
