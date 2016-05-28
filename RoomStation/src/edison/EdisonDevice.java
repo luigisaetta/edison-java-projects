@@ -2,6 +2,12 @@ package edison;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import upm_i2clcd.*;
 
@@ -49,10 +55,31 @@ public class EdisonDevice implements MqttCallback
 
 		// set once for all connOptions
 		connOpts.setCleanSession(true);
-
+		connOpts.setKeepAliveInterval(30);
+		
 		// Initialize MQTT client
+		
 		try
 		{
+			// verify is SSL is requested
+			if (config.BROKER.contains("ssl"))
+			{
+				try
+				{
+					SSLContext sslContext = SSLContext.getInstance("SSL");
+					TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+					KeyStore keyStore = readKeyStore();
+					trustManagerFactory.init(keyStore);
+					sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+					
+					connOpts.setSocketFactory(sslContext.getSocketFactory());
+				} catch (Exception e)
+				{
+					e.printStackTrace();
+					System.exit(-1);
+				}    	
+			}
+			
 			mqttClient = new MqttClient(config.BROKER, config.CLIENTID);
 		} catch (MqttException e)
 		{
@@ -310,5 +337,26 @@ public class EdisonDevice implements MqttCallback
 		  led.on();
 		if (sMessage.indexOf("OFF") > 0)
 			  led.off();
+	}
+	
+	private KeyStore readKeyStore()
+	{
+		KeyStore keystore = null;
+		
+		try
+		{
+			FileInputStream is = new FileInputStream(config.KEYSTORE);
+
+			keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+			
+			String keypwd = config.KEYPWD;
+			
+			keystore.load(is, keypwd.toCharArray());
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	    
+	    return keystore;
 	}
 }

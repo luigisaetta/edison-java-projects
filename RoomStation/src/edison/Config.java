@@ -34,6 +34,10 @@ public class Config
 
 	protected List<SensorDef> lSensorsDef = new ArrayList<SensorDef>();
 
+	// for TLS
+	protected String KEYSTORE;
+	protected String KEYPWD;
+	
 	public void readConfig()
 	{
 		Properties prop = new Properties();
@@ -82,6 +86,9 @@ public class Config
 
 			lSensorsDef.add(sDef);
 		}
+		
+		KEYSTORE = prop.getProperty("KEYSTORE");
+		KEYPWD = prop.getProperty("KEYPWD");
 	}
 
 	public void printConfig()
@@ -102,5 +109,8 @@ public class Config
 			System.out.println(lSensorsDef.get(i).getType());
 		}
 		
+		// for SSL
+		System.out.println("KEYSTORE: " + KEYSTORE);
+		System.out.println("KEYPWD: " + KEYPWD);
 	}
 }
