@@ -7,3 +7,4 @@ Edison
 
 RoomStation
 - using Temp, Light TP401 Gas Sensors from Grove Starter Kit
+- enhanced to support TLS/SSL connection to MQTT broker
