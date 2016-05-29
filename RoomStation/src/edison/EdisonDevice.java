@@ -60,24 +60,7 @@ public class EdisonDevice implements MqttCallback
 		// verify is SSL is requested
 		if (config.BROKER.contains("ssl"))
 		{
-			try
-			{
-				SSLContext sslContext = SSLContext.getInstance("SSL");
-				TrustManagerFactory trustManagerFactory = TrustManagerFactory
-						.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-				
-				KeyStore keyStore = readKeyStore();
-				
-				trustManagerFactory.init(keyStore);
-				
-				sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-				// add to MQTT connOpts
-				connOpts.setSocketFactory(sslContext.getSocketFactory());
-			} catch (Exception e)
-			{
-				printMsgAndExit(e);
-			}
+			addSSL();
 		}
 
 		// Initialize MQTT client
@@ -86,6 +69,28 @@ public class EdisonDevice implements MqttCallback
 		{
 			mqttClient = new MqttClient(config.BROKER, config.CLIENTID);
 		} catch (MqttException e)
+		{
+			printMsgAndExit(e);
+		}
+	}
+
+	private void addSSL()
+	{
+		try
+		{
+			SSLContext sslContext = SSLContext.getInstance("SSL");
+			TrustManagerFactory trustManagerFactory = TrustManagerFactory
+					.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			
+			KeyStore keyStore = readKeyStore();
+			
+			trustManagerFactory.init(keyStore);
+			
+			sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+			// add to MQTT connOpts
+			connOpts.setSocketFactory(sslContext.getSocketFactory());
+		} catch (Exception e)
 		{
 			printMsgAndExit(e);
 		}
