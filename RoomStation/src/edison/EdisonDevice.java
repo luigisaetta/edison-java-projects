@@ -65,10 +65,14 @@ public class EdisonDevice implements MqttCallback
 				SSLContext sslContext = SSLContext.getInstance("SSL");
 				TrustManagerFactory trustManagerFactory = TrustManagerFactory
 						.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				
 				KeyStore keyStore = readKeyStore();
+				
 				trustManagerFactory.init(keyStore);
+				
 				sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
 
+				// add to MQTT connOpts
 				connOpts.setSocketFactory(sslContext.getSocketFactory());
 			} catch (Exception e)
 			{
@@ -339,6 +343,10 @@ public class EdisonDevice implements MqttCallback
 			led.off();
 	}
 
+	/**
+	 * The function is used to read the KeyStore used in case SSL/TLS is used.
+	 * @return
+	 */
 	private KeyStore readKeyStore()
 	{
 		KeyStore keystore = null;
