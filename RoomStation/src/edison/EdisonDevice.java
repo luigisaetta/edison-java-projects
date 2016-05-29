@@ -74,28 +74,10 @@ public class EdisonDevice implements MqttCallback
 		}
 	}
 
-	private void addSSL()
-	{
-		try
-		{
-			SSLContext sslContext = SSLContext.getInstance("SSL");
-			TrustManagerFactory trustManagerFactory = TrustManagerFactory
-					.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			
-			KeyStore keyStore = readKeyStore();
-			
-			trustManagerFactory.init(keyStore);
-			
-			sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-			// add to MQTT connOpts
-			connOpts.setSocketFactory(sslContext.getSocketFactory());
-		} catch (Exception e)
-		{
-			printMsgAndExit(e);
-		}
-	}
-
+	/**
+	 * Main
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		System.out.println("Starting program...");
@@ -194,8 +176,30 @@ public class EdisonDevice implements MqttCallback
 	}
 
 	//
-	// Class method
+	// Class methods
 	//
+	private void addSSL()
+	{
+		try
+		{
+			SSLContext sslContext = SSLContext.getInstance("SSL");
+			TrustManagerFactory trustManagerFactory = TrustManagerFactory
+					.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			
+			KeyStore keyStore = readKeyStore();
+			
+			trustManagerFactory.init(keyStore);
+			
+			sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+			// add to MQTT connOpts
+			connOpts.setSocketFactory(sslContext.getSocketFactory());
+		} catch (Exception e)
+		{
+			printMsgAndExit(e);
+		}
+	}
+	
 	/**
 	 * Initialize Sensors Definition
 	 * 
